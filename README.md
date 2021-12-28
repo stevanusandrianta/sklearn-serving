@@ -9,13 +9,23 @@ Deploying machine learning model supposed to be simple, this is why this project
 
 ## Setup
 
+It is recommended if you just download the docker container remotely
+
+```bash
+docker pull sandrianta/sklearn-serving:latest
+```
+
 In order to build the docker image locally:
 
 ```bash
-docker build -t sklearn-serving:latest .
+docker build -t sandrianta/sklearn-serving:latest .
 ```
 
 ## Usage
+
+### 1. Using list type as an input
+
+Building the model and run FastAPI locally
 
 ```
 python3 examples/iris_logistic_regression.py
@@ -23,13 +33,34 @@ python3 examples/iris_logistic_regression.py
 docker run -p 8000:80 \
 --mount type=bind,source="$(pwd)"/,target=/tmp/model/ \
 -e MODEL_PATH=/tmp/model/iris_logistic_regression.joblib \
-sklearn-serving:latest
+sandrianta/sklearn-serving:latest
 ```
 
-After the FastAPI on docker is up and running, you can run this curl command to invoke the API
+Example to invoke the API
 
 ```
 curl --location --request POST 'localhost:8000/predict/' \
 --header 'Content-Type: application/json' \
 --data-raw '{"data" : [[1,2,3,10]]}'
+```
+
+### 2. Using json type as input
+
+Building the model and run FastAPI locally
+
+```
+python3 examples/iris_logistic_regression.py
+
+docker run -p 8000:80 \
+--mount type=bind,source="$(pwd)"/,target=/tmp/model/ \
+-e MODEL_PATH=/tmp/model/titanic_sklearn_pipelines.joblib \
+sandrianta/sklearn-serving:latest
+```
+
+Example to invoke the API
+
+```
+curl --location --request POST 'localhost:8000/predict/' \
+--header 'Content-Type: application/json' \
+--data-raw '{"data" : [{"PassengerId":1,"Pclass":3,"Name":"Braund, Mr. Owen Harris","Sex":"male","Age":22.0,"SibSp":1,"Parch":0,"Ticket":"A\\/5 21171","Fare":7.25,"Cabin":null,"Embarked":"S"}]}'
 ```

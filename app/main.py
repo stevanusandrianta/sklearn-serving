@@ -3,6 +3,7 @@ from typing import Any, Optional
 from fastapi import FastAPI
 
 import numpy as np
+import pandas as pd
 import os
 import joblib
 
@@ -35,8 +36,13 @@ def read_item(predictionInput: PredictionInput):
     if not MODEL:
         return {"error": "MODEL_PATH is not initialized"}
 
-    prediction = MODEL.predict(np.array(predictionInput.data))
-    probabilities = MODEL.predict_proba(np.array(predictionInput.data))
+    if type(predictionInput.data[0]) == dict:
+        prediction_data = pd.DataFrame(predictionInput.data)
+    else:
+        prediction_data = np.array(predictionInput.data)
+
+    prediction = MODEL.predict(prediction_data)
+    probabilities = MODEL.predict_proba(prediction_data)
 
     return PredictionOutput(
         prediction=str(prediction),
